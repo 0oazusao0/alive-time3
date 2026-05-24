@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>経過時間計算機</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            line-height: 1.6;
+            color: #e0e0e0;
+            background: linear-gradient(135deg, #0f0f1e 0%, #1a1a3a 30%, #0d1b2a 70%, #0f0f1e 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        body::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 20% 50%, rgba(100, 200, 255, 0.08) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(150, 100, 255, 0.06) 0%, transparent 50%);
+            animation: shimmer 20s ease-in-out infinite;
+            pointer-events: none;
+        }
+        
+        @keyframes shimmer {
+            0%, 100% { transform: translate(-50%, -50%); }
+            50% { transform: translate(0, 0); }
+        }
+        
+        .container {
+            background: rgba(20, 25, 45, 0.85);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5),
+                        0 0 120px rgba(100, 150, 255, 0.1);
+            padding: 2.5rem;
+            max-width: 550px;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+            border: 1px solid rgba(100, 150, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .container:hover {
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.6),
+                        0 0 120px rgba(100, 150, 255, 0.2);
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+        
+        h1 {
+            background: linear-gradient(135deg, #64c8ff 0%, #9664ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        
+        .subtitle {
+            color: #8899bb;
+            font-size: 0.9rem;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+        
+        .input-group {
+            margin-bottom: 2rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.75rem;
+            color: #aabbcc;
+            font-weight: 600;
+            font-size: 0.95rem;
+            letter-spacing: 0.3px;
+        }
+        
+        input[type="date"] {
+            width: 100%;
+            padding: 0.95rem 1rem;
+            border: 2px solid #334455;
+            border-radius: 12px;
+            font-size: 1rem;
+            background: rgba(40, 50, 80, 0.5);
+            color: #e0e0e0;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        input[type="date"]:hover {
+            border-color: #5577cc;
+            background: rgba(40, 50, 80, 0.8);
+        }
+        
+        input[type="date"]:focus {
+            outline: none;
+            border-color: #64c8ff;
+            background: rgba(40, 50, 80, 0.9);
+            box-shadow: 0 0 0 3px rgba(100, 200, 255, 0.15);
+        }
+        
+        .result {
+            background: linear-gradient(135deg, rgba(30, 40, 70, 0.6) 0%, rgba(20, 30, 60, 0.6) 100%);
+            border-radius: 16px;
+            padding: 2rem;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border: 1px solid rgba(100, 150, 255, 0.1);
+        }
+        
+        .time-display {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(30, 40, 80, 0.5);
+            border: 2px solid #334455;
+            border-radius: 14px;
+            padding: 1.25rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .time-text {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #64c8ff 0%, #9664ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 0.5px;
+        }
+        
+        .time-text {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #64c8ff 0%, #9664ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 0.5px;
+        }
+        
+        .message {
+            text-align: center;
+            color: #8899bb;
+            font-size: 1rem;
+            padding: 2rem 1rem;
+            font-weight: 500;
+        }
+        
+        .error {
+            color: #ff6b6b;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>経過時間計算機</h1>
+            <p class="subtitle">生年月日を入力してください</p>
+        </header>
+        
+        <div class="input-group">
+            <label for="birthDate">生年月日</label>
+            <input type="date" id="birthDate">
+        </div>
+        
+        <div class="result" id="result">
+            <p class="message">生年月日を入力してください</p>
+        </div>
+    </div>
+
+    <script>
+        const birthDateInput = document.getElementById('birthDate');
+        const resultDiv = document.getElementById('result');
+        let updateInterval;
+
+        birthDateInput.addEventListener('change', function() {
+            if (updateInterval) {
+                clearInterval(updateInterval);
+            }
+            updateDisplay();
+            updateInterval = setInterval(updateDisplay, 1000);
+        });
+
+        function updateDisplay() {
+            const birthDateValue = birthDateInput.value;
+            
+            if (!birthDateValue) {
+                resultDiv.innerHTML = '<p class="message">生年月日を入力してください</p>';
+                return;
+            }
+
+            const birthDate = new Date(birthDateValue);
+            const now = new Date();
+
+            // 生年月日が未来の場合
+            if (birthDate > now) {
+                resultDiv.innerHTML = '<p class="message error">生年月日は本日以前の日付を入力してください</p>';
+                return;
+            }
+
+            // 経過時間を計算
+            const elapsed = calculateElapsed(birthDate, now);
+
+            resultDiv.innerHTML = `
+                <div class="time-display">
+                    <span class="time-text">${elapsed.years}年${elapsed.months}月${elapsed.days}日${elapsed.hours}時${elapsed.minutes}分${elapsed.seconds}秒</span>
+                </div>
+            `;
+        }
+
+        function calculateElapsed(birthDate, now) {
+            let years = now.getFullYear() - birthDate.getFullYear();
+            let months = now.getMonth() - birthDate.getMonth();
+            let days = now.getDate() - birthDate.getDate();
+            
+            // 日が負の場合は月を減らす
+            if (days < 0) {
+                months--;
+                const prevMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+                days += prevMonth.getDate();
+            }
+            
+            // 月が負の場合は年を減らす
+            if (months < 0) {
+                years--;
+                months += 12;
+            }
+
+            // 時分秒を計算
+            let tempDate = new Date(birthDate);
+            tempDate.setFullYear(now.getFullYear());
+            tempDate.setMonth(now.getMonth());
+            tempDate.setDate(now.getDate());
+            
+            let totalSeconds = Math.floor((now - tempDate) / 1000);
+            const hours = Math.floor(totalSeconds / 3600);
+            totalSeconds %= 3600;
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+
+            return {
+                years,
+                months,
+                days,
+                hours,
+                minutes,
+                seconds
+            };
+        }
+    </script>
+</body>
+</html>
